@@ -1,0 +1,14 @@
+send-email:
+  handler: handler.generate_certificate_handler
+  layers:
+    - { Ref: PythonRequirementsLambdaLayer }
+  events:
+    - sqs:
+        arn:
+          "Fn::GetAtt": [ CertificateQueue, Arn ]
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "sqs:*"
+      Resource:
+        - "Fn::GetAtt": [ CertificateQueue, Arn ]

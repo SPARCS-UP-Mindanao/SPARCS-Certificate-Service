@@ -1,0 +1,39 @@
+service: sparcs-certificate-service
+
+custom:
+  projectName: sparcs-events
+  serviceName: certificate
+  stage: ${opt:stage, self:provider.stage}
+  certificateQueue: ${self:custom.stage}-${self:custom.projectName}-certificate-queue.fifo
+  pythonRequirements:
+    dockerizePip: non-linux
+    layer:
+      name: sparcs-events-${self:provider.stage}-python-requirements
+      path: .
+      compatibleRuntimes:
+        - python3.8
+
+provider:
+  name: aws
+  runtime: python3.8
+  stage: dev
+  region: ap-southeast-1
+  versionFunctions: false
+  environment:
+    REGION: ${self:provider.region}
+    STAGE: ${self:provider.stage}
+    CERTIFICATE_QUEUE: ${self:provider.certificateQueue}
+
+resources:
+  - ${file(resources/sqs.yml)}
+
+functions:
+  - ${file(resources/generate_certificate.yml)}
+
+plugins:
+  - serverless-python-requirements
+  - serverless-iam-roles-per-function
+
+package:
+  patterns:
+    - "!node_modules/**"

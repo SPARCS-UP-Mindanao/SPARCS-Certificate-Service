@@ -1,0 +1,14 @@
+Resources:
+  CertificateQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.certificateQueue}
+      FifoQueue: true
+      MessageRetentionPeriod: 1209600  # 14 days
+      VisibilityTimeout: 900
+
+Outputs:
+  CertificateQueueUrl:
+    Value: !Ref CertificateQueue
+    Export:
+      Name: CertificateQueue-${self:custom.stage}
