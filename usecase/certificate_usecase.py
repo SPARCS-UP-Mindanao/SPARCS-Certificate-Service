@@ -1,4 +1,3 @@
-import logging
 import os
 import tempfile
 from http import HTTPStatus
@@ -12,11 +11,11 @@ from repository.events_repository import EventsRepository
 from repository.registrations_repository import RegistrationsRepository
 from s3.data_store import S3DataStore
 from template.get_template import html_template
+from utils.logger import logger
 
 
 class CertificateUsecase:
     def __init__(self):
-        self.logger = logging.getLogger()
         self.__s3_data_store = S3DataStore()
         self.__registrations_repository = RegistrationsRepository()
         self.__events_repository = EventsRepository()
@@ -28,12 +27,12 @@ class CertificateUsecase:
         return htmlTemplate.render(template_img=template_img, name=name)
 
     def generate_certficates(self, event_id: str):
-        self.logger.info(f"Generating certificates for event: {event_id}")
+        logger.info(f"Generating certificates for event: {event_id}")
 
         # Get Events Data
         status, event, message = self.__events_repository.query_events(event_id=event_id)
         if status != HTTPStatus.OK:
-            self.logger.error(message)
+            logger.error(message)
             return
 
         template_img = event.certificateTemplate
@@ -41,28 +40,31 @@ class CertificateUsecase:
         # Get Registration Data
         status, registrations, message = self.__registrations_repository.query_registrations(event_id=event_id)
         if status != HTTPStatus.OK:
-            self.logger.error(message)
+            logger.error(message)
             return
 
         try:
             with tempfile.TemporaryDirectory() as tmpdir:
                 html_filename = 'certificate.html'
+                template_img_path = os.path.join(tmpdir, 'template_img.png')
+                self.__s3_data_store.download_file(object_name=template_img, file_name=template_img_path)
 
                 for registration in registrations:
-                    self.logger.info(
+                    logger.info(
                         f"Generating certificates for event: {event_id} registration: {registration.registrationId}"
                     )
 
                     # Generate Certificate HTML--------------------------------------------------------------------------------------------
                     name = f'{registration.firstName} {registration.lastName}'
-                    html_out = self.generate_certificate_html(template_img=template_img, name=name)
+                    certificate_name = f'{event_id}_{name}'
+                    html_out = self.generate_certificate_html(template_img=template_img_path, name=name)
                     output_path = os.path.join(tmpdir, html_filename)
                     with open(output_path, 'w') as file:
                         file.write(html_out)
 
                     # Convert HTML to PDF-------------------------------------------------------------------------------------------------
-                    certificate_name = f'{event_id}_{name}.pdf'
-                    certificate_path = os.path.join(tmpdir, certificate_name)
+                    certificate_name_pdf = f'{certificate_name}.pdf'
+                    certificate_path = os.path.join(tmpdir, certificate_name_pdf)
                     options = {
                         'page-size': 'A4',
                         'orientation': 'Landscape',
@@ -70,8 +72,13 @@ class CertificateUsecase:
                         'margin-right': '0mm',
                         'margin-bottom': '0mm',
                         'margin-left': '0mm',
+                        "enable-local-file-access": "",
                     }
-                    pdfkit.from_string(input=html_out, output_path=certificate_path, options=options)
+                    PATH_WKHTMLTOPDF = '/opt/bin/wkhtmltopdf'
+                    PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=PATH_WKHTMLTOPDF)
+                    pdfkit.from_string(
+                        input=html_out, output_path=certificate_path, options=options, configuration=PDFKIT_CONFIG
+                    )
 
                     # Get only the first page of the PDF----------------------------------------------------------------------------------
                     certificate_doc = fitz.open(certificate_path)
@@ -87,7 +94,7 @@ class CertificateUsecase:
                     doc_first_page.close()
 
                     # Upload to S3-------------------------------------------------------------------------------------------------------
-                    certificate_pdf_object_key = f'{event_id}/certificates/{name}/{certificate_name}'
+                    certificate_pdf_object_key = f'certificates/{event_id}/{name}/{certificate_name_pdf}'
                     self.__s3_data_store.upload_file(file_name=certificate_path, object_name=certificate_pdf_object_key)
 
                     # Convert to png-----------------------------------------------------------------------------------------------------
@@ -99,7 +106,7 @@ class CertificateUsecase:
                     pix.save(image_path)
 
                     # upload to S3-------------------------------------------------------------------------------------------------------
-                    certificate_img_object_key = f'{event_id}/certificates/{name}/{image_certificate_name}'
+                    certificate_img_object_key = f'certificates/{event_id}/{name}/{image_certificate_name}'
                     self.__s3_data_store.upload_file(file_name=image_path, object_name=certificate_img_object_key)
                     certificate_doc.close()
 
@@ -112,10 +119,10 @@ class CertificateUsecase:
                         ),
                     )
 
-                    self.logger.info(
+                    logger.info(
                         f"Success Generating certificates for event: {event_id} registration: {registration.registrationId}"
                     )
 
         except Exception as e:
-            self.logger.error(f'Error Generating Certificate: {e}')
+            logger.error(f'Error Generating Certificate: {e}')
             return

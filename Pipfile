@@ -12,7 +12,7 @@ jinja2 = "==3.1.2"
 pdfkit = "1.0.0"
 pillow = "==10.1.0"
 pymupdf = "==1.23.6"
-pynamodb = "==5.2.1"
+pynamodb = "==5.5.0"
 
 [dev-packages]
 pre-commit = "==3.3.3"

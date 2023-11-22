@@ -1,20 +1,21 @@
-import logging
 import io
+import logging
 import os
 import zipfile
 from http import HTTPStatus
 from typing import List
 
 from boto3 import client as boto3_client
-from s3.s3_constants import PresignedURLMethod
+
 from s3.exceptions import PdfServiceInternalError
+from s3.s3_constants import PresignedURLMethod
 
 
 # pylint: disable=broad-except
 class S3DataStore:
     __slots__ = ['__s3_client', '__bucket_name', '__logger']
 
-    def __init__(self, bucket_name=os.environ['PDF_FORMS_BUCKET']):
+    def __init__(self, bucket_name=os.environ['S3_BUCKET']):
         self.__s3_client = boto3_client('s3')
         self.__bucket_name = bucket_name
         self.__logger = logging.getLogger()

@@ -5,8 +5,6 @@ from datetime import datetime
 from http import HTTPStatus
 from typing import List, Tuple
 
-from constants.common_constants import EntryStatus
-from model.events.event import Event, EventIn
 from pynamodb.connection import Connection
 from pynamodb.exceptions import (
     PutError,
@@ -16,6 +14,9 @@ from pynamodb.exceptions import (
     TransactWriteError,
 )
 from pynamodb.transactions import TransactWrite
+
+from constants.common_constants import EntryStatus
+from model.events.event import Event, EventIn
 from repository.repository_utils import RepositoryUtils
 
 

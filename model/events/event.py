@@ -1,10 +1,11 @@
 from datetime import datetime
 from typing import Optional
 
-from model.entities import Entities
-from model.events.events_constants import EventStatus
 from pydantic import BaseModel, EmailStr, Extra, Field
 from pynamodb.attributes import BooleanAttribute, NumberAttribute, UnicodeAttribute
+
+from model.entities import Entities
+from model.events.events_constants import EventStatus
 
 
 class Event(Entities, discriminator='Event'):

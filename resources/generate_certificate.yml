@@ -1,7 +1,9 @@
-send-email:
+generate:
   handler: handler.generate_certificate_handler
+  timeout: 900
   layers:
-    - { Ref: PythonRequirementsLambdaLayer }
+    - Ref: WkhtmltopdfLambdaLayer
+    - Ref: PythonRequirementsLambdaLayer
   events:
     - sqs:
         arn:
@@ -12,3 +14,16 @@ send-email:
         - "sqs:*"
       Resource:
         - "Fn::GetAtt": [ CertificateQueue, Arn ]
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+      Resource:
+        - arn:aws:s3:::${self:custom.bucket}
+        - arn:aws:s3:::${self:custom.bucket}/*
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - arn:aws:dynamodb:ap-southeast-1:192218445313:table/${self:custom.stage}-sparcs-events-entities
+        - arn:aws:dynamodb:ap-southeast-1:192218445313:table/${self:custom.stage}-sparcs-events-registrations
