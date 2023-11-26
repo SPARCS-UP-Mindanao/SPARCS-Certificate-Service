@@ -72,7 +72,10 @@ class CertificateUsecase:
                         'margin-right': '0mm',
                         'margin-bottom': '0mm',
                         'margin-left': '0mm',
-                        "enable-local-file-access": "",
+                        'encoding': "UTF-8",
+                        "print-media-type": True,
+                        'disable-smart-shrinking': True,
+                        "enable-local-file-access": True,
                     }
                     PATH_WKHTMLTOPDF = '/opt/bin/wkhtmltopdf'
                     PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=PATH_WKHTMLTOPDF)
