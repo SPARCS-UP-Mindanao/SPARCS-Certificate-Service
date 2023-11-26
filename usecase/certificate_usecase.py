@@ -43,9 +43,9 @@ class CertificateUsecase:
             logger.error(message)
             return
 
+        html_filename = 'certificate.html'
         try:
             with tempfile.TemporaryDirectory() as tmpdir:
-                html_filename = 'certificate.html'
                 template_img_path = os.path.join(tmpdir, 'template_img.png')
                 self.__s3_data_store.download_file(object_name=template_img, file_name=template_img_path)
 
@@ -98,7 +98,9 @@ class CertificateUsecase:
                     self.__s3_data_store.upload_file(file_name=certificate_path, object_name=certificate_pdf_object_key)
 
                     # Convert to png-----------------------------------------------------------------------------------------------------
-                    pix = first_page.get_pixmap()
+                    zoom = 4
+                    mat = fitz.Matrix(zoom, zoom)
+                    pix = first_page.get_pixmap(matrix=mat)
 
                     # Save the image-----------------------------------------------------------------------------------------------------
                     image_certificate_name = f'{certificate_name}.png'
