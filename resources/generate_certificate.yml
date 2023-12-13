@@ -1,6 +1,8 @@
-certificate:
-  image:
-    name: generate_certificate
+certMaker:
+  handler: handler.generate_certificate_handler
+  layers:
+    - Ref: WeazyprintLambdaLayer
+    - Ref: PythonRequirementsLambdaLayer
   timeout: 900
   events:
     - sqs:
