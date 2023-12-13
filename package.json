@@ -6,6 +6,7 @@
   "license": "MIT",
   "devDependencies": {
     "serverless-iam-roles-per-function": "^3.2.0",
+    "serverless-plugin-log-retention": "^2.0.0",
     "serverless-python-requirements": "^6.0.0"
   }
 }

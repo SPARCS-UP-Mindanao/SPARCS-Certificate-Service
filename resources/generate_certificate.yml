@@ -1,9 +1,7 @@
-generate:
-  handler: handler.generate_certificate_handler
+certificate:
+  image:
+    name: generate_certificate
   timeout: 900
-  layers:
-    - Ref: WkhtmltopdfLambdaLayer
-    - Ref: PythonRequirementsLambdaLayer
   events:
     - sqs:
         arn:
