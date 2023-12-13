@@ -2,7 +2,7 @@ service: sparcs-certificate-service
 
 custom:
   projectName: sparcs-events
-  serviceName: certificate
+  serviceName: certificate-generator
   stage: ${opt:stage, self:provider.stage}
   entities: ${self:custom.stage}-${self:custom.projectName}-entities
   bucket: ${self:custom.stage}-${self:custom.projectName}-file-bucket
@@ -19,6 +19,7 @@ custom:
       compatibleRuntimes:
         - python3.8
     slim: true
+  logRetentionInDays: 30
 
 provider:
   name: aws
@@ -46,10 +47,11 @@ functions:
 plugins:
   - serverless-python-requirements
   - serverless-iam-roles-per-function
+  - serverless-plugin-log-retention
 
 layers:
-  wkhtmltopdf:
-    name: ${self:custom.projectName}-${self:custom.stage}-wkhtmltopdf
-    description: wkhtmltopdf Linux Package Layer
+  weazyprint:
+    name: ${self:custom.projectName}-${self:custom.stage}-weazyprint
+    description: weazyprint Linux Package Layer
     package:
-      artifact: layers/wkhtmltox-0.12.6-4.amazonlinux2_lambda.zip
+      artifact: layers/weasyprint-layer-python3.8.zip

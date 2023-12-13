@@ -4,48 +4,43 @@
     <meta charset="UTF-8">
     <title>{{name}} Certificate</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        body {
+         html, body {
             width: 100%;
             height: 100%;
+            margin: 0;
+            padding: 0;
             position: relative;
         }
 
         img {
             width: 100%;
             height: auto;
-            object-fit: cover; /* Ensure the image covers the full area without distortion */
+            object-fit: cover;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: -1;
         }
 
-        span {
+        .centered {
             text-align: center;
             font-family: Verdana, sans-serif;
             font-size: 48px;
+            font-weight: bold;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
-        div {
-            display: -webkit-box; /* wkhtmltopdf uses this one */
-            display: flex;
-            -webkit-box-pack: center; /* wkhtmltopdf uses this one */
-            justify-content: center;
-            align-items: center;
-            -webkit-box-align: center; /* wkhtmltopdf uses this one */
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
+        .centered span {
+            white-space: nowrap; /* Prevents the text from wrapping */
         }
     </style>
 </head>
 <body>
     <img src="{{template_img}}">
-    <div>
+    <div class="centered">
         <span>{{name}}</span>
     </div>
 </body>

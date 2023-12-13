@@ -4,7 +4,8 @@ from http import HTTPStatus
 
 import fitz
 import jinja2
-import pdfkit
+import weasyprint
+from weasyprint import CSS
 
 from model.registrations.registration import RegistrationIn
 from repository.events_repository import EventsRepository
@@ -65,22 +66,8 @@ class CertificateUsecase:
                     # Convert HTML to PDF-------------------------------------------------------------------------------------------------
                     certificate_name_pdf = f'{certificate_name}.pdf'
                     certificate_path = os.path.join(tmpdir, certificate_name_pdf)
-                    options = {
-                        'page-size': 'A4',
-                        'orientation': 'Landscape',
-                        'margin-top': '0mm',
-                        'margin-right': '0mm',
-                        'margin-bottom': '0mm',
-                        'margin-left': '0mm',
-                        'encoding': "UTF-8",
-                        "print-media-type": True,
-                        'disable-smart-shrinking': True,
-                        "enable-local-file-access": True,
-                    }
-                    PATH_WKHTMLTOPDF = '/opt/bin/wkhtmltopdf'
-                    PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=PATH_WKHTMLTOPDF)
-                    pdfkit.from_string(
-                        input=html_out, output_path=certificate_path, options=options, configuration=PDFKIT_CONFIG
+                    weasyprint.HTML(output_path).write_pdf(
+                        certificate_path, stylesheets=[CSS(string='@page { size: A4 landscape; margin: 0;}')]
                     )
 
                     # Get only the first page of the PDF----------------------------------------------------------------------------------
