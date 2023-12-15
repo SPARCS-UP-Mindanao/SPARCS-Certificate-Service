@@ -1,9 +1,9 @@
-generate:
+certMaker:
   handler: handler.generate_certificate_handler
-  timeout: 900
   layers:
-    - Ref: WkhtmltopdfLambdaLayer
+    - Ref: WeazyprintLambdaLayer
     - Ref: PythonRequirementsLambdaLayer
+  timeout: 900
   events:
     - sqs:
         arn:

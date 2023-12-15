@@ -9,6 +9,7 @@ from boto3 import client as boto3_client
 
 from s3.exceptions import PdfServiceInternalError
 from s3.s3_constants import PresignedURLMethod
+from utils.logger import logger
 
 
 # pylint: disable=broad-except
@@ -18,7 +19,6 @@ class S3DataStore:
     def __init__(self, bucket_name=os.environ['S3_BUCKET']):
         self.__s3_client = boto3_client('s3')
         self.__bucket_name = bucket_name
-        self.__logger = logging.getLogger()
 
     def upload_file(self, file_name: str, object_name: str = None, verbose: bool = True) -> bool:
         result = True
@@ -30,10 +30,10 @@ class S3DataStore:
         try:
             self.__s3_client.upload_file(file_name, self.__bucket_name, object_name)
             if verbose:
-                self.__logger.info('Stored file in S3: %s/%s', self.__bucket_name, object_name)
+                logger.info('Stored file in S3: %s/%s', self.__bucket_name, object_name)
         except Exception as e:
             message = f'Failed to upload file ({file_name}) to S3, Reason: {type(e).__name__} - {str(e)}'
-            self.__logger.error(message)
+            logger.error(message)
             raise PdfServiceInternalError(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, message=message) from e
 
         return result
@@ -44,10 +44,10 @@ class S3DataStore:
         try:
             self.__s3_client.download_file(self.__bucket_name, object_name, file_name)
             if verbose:
-                self.__logger.info('Downloaded file in S3: %s/%s', self.__bucket_name, object_name)
+                logger.info('Downloaded file in S3: %s/%s', self.__bucket_name, object_name)
         except Exception as e:
             message = f'Failed to download file ({object_name}) from S3, Reason: {type(e).__name__} - {str(e)}'
-            self.__logger.error(message)
+            logger.error(message)
             raise PdfServiceInternalError(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, message=message) from e
 
         return result
@@ -69,10 +69,10 @@ class S3DataStore:
             self.__s3_client.put_object(Body=zip_buffer.getvalue(), Bucket=self.__bucket_name, Key=output_zip_key)
 
             if verbose:
-                self.__logger.info('Stored file in S3: %s', f'{self.__bucket_name}/{output_zip_key}')
+                logger.info('Stored file in S3: %s', f'{self.__bucket_name}/{output_zip_key}')
         except Exception as e:
             message = f'Failed to zip files, Reason: {type(e).__name__} - {str(e)}'
-            self.__logger.error(message)
+            logger.error(message)
             raise PdfServiceInternalError(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, message=message) from e
 
     def generate_presigned_url(
@@ -90,14 +90,14 @@ class S3DataStore:
             url = self.__s3_client.generate_presigned_url(
                 ClientMethod=method.value, Params=params, ExpiresIn=expires_in
             )
-            self.__logger.info('Pre-signed URL generated for file: %s', object_name)
+            logger.info('Pre-signed URL generated for file: %s', object_name)
         except Exception as e:
             message = (
                 f'Failed to generate pre-signed URl for file: ({object_name}), '
                 f'Reason: '
                 f'{type(e).__name__} - {str(e)}'
             )
-            self.__logger.error(message)
+            logger.error(message)
             raise PdfServiceInternalError(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, message=message) from e
 
         return url
@@ -109,7 +109,7 @@ class S3DataStore:
         try:
             self.__s3_client.delete_object(Bucket=self.__bucket_name, Key=object_name)
         except Exception as e:
-            self.__logger.error('Failed to delete file (%s), Reason: %s - %s', object_name, type(e).__name__, str(e))
+            logger.error('Failed to delete file (%s), Reason: %s - %s', object_name, type(e).__name__, str(e))
             return False
 
         return True
@@ -118,7 +118,7 @@ class S3DataStore:
         try:
             s3_response = self.__s3_client.get_object(Bucket=self.__bucket_name, Key=object_key)
         except Exception as e:
-            self.__logger.error('Failed to get file (%s), Reason: %s - %s', object_key, type(e).__name__, str(e))
+            logger.error('Failed to get file (%s), Reason: %s - %s', object_key, type(e).__name__, str(e))
             return None
 
         return s3_response['Body'].read()
@@ -135,5 +135,5 @@ class S3DataStore:
                 CopySource={'Bucket': src_bucket, 'Key': src_key}, Bucket=self.__bucket_name, Key=target_key
             )
         except Exception as e:
-            self.__logger.error('Failed to get copy (%s), Reason: %s - %s', src_key, type(e).__name__, str(e))
+            logger.error('Failed to get copy (%s), Reason: %s - %s', src_key, type(e).__name__, str(e))
             return
