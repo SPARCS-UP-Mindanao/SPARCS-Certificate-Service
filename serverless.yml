@@ -8,6 +8,7 @@ custom:
   bucket: ${self:custom.stage}-${self:custom.projectName}-file-bucket
   registrations: ${self:custom.stage}-${self:custom.projectName}-registrations
   certificateQueue: ${self:custom.stage}-${self:custom.projectName}-certificate-queue.fifo
+  events: ${self:custom.stage}-${self:custom.projectName}
   pythonRequirements:
     dockerizePip: non-linux
     noDeploy:
@@ -34,6 +35,7 @@ provider:
     CERTIFICATE_QUEUE: ${self:custom.certificateQueue}
     REGISTRATIONS_TABLE: ${self:custom.registrations}
     ENTITIES_TABLE: ${self:custom.entities}
+    EVENTS_TABLE: ${self:custom.events}
     S3_BUCKET: ${self:custom.bucket}
 
 package: ${file(resources/package.yml)}
