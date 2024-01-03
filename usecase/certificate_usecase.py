@@ -27,7 +27,7 @@ class CertificateUsecase:
         htmlTemplate = j2.from_string(template)
         return htmlTemplate.render(template_img=template_img, name=name)
 
-    def generate_certficates(self, event_id: str):
+    def generate_certficates(self, event_id: str, registration_id: str = None):
         logger.info(f"Generating certificates for event: {event_id}")
 
         # Get Events Data
@@ -39,7 +39,14 @@ class CertificateUsecase:
         template_img = event.certificateTemplate
 
         # Get Registration Data
-        status, registrations, message = self.__registrations_repository.query_registrations(event_id=event_id)
+        if registration_id:
+            status, registration, message = self.__registrations_repository.query_registrations(
+                event_id=event_id, registration_id=registration_id
+            )
+            registrations = [registration]
+        else:
+            status, registrations, message = self.__registrations_repository.query_registrations(event_id=event_id)
+
         if status != HTTPStatus.OK:
             logger.error(message)
             return
@@ -49,6 +56,7 @@ class CertificateUsecase:
             with tempfile.TemporaryDirectory() as tmpdir:
                 template_img_path = os.path.join(tmpdir, 'template_img.png')
                 self.__s3_data_store.download_file(object_name=template_img, file_name=template_img_path)
+                zoom = 4
 
                 for registration in registrations:
                     logger.info(
@@ -72,8 +80,7 @@ class CertificateUsecase:
 
                     # Get only the first page of the PDF----------------------------------------------------------------------------------
                     certificate_doc = fitz.open(certificate_path)
-                    first_page_index = 0
-                    first_page = certificate_doc.load_page(first_page_index)
+                    first_page = certificate_doc.load_page(0)
 
                     # Create a new PDF to store the first page
                     doc_first_page = fitz.open()
@@ -87,8 +94,6 @@ class CertificateUsecase:
                     certificate_pdf_object_key = f'certificates/{event_id}/{name}/{certificate_name_pdf}'
                     self.__s3_data_store.upload_file(file_name=certificate_path, object_name=certificate_pdf_object_key)
 
-                    # Convert to png-----------------------------------------------------------------------------------------------------
-                    zoom = 4
                     mat = fitz.Matrix(zoom, zoom)
                     pix = first_page.get_pixmap(matrix=mat)
 

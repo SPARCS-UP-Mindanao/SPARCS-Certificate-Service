@@ -17,5 +17,6 @@ def generate_certificate_handler(event, context):
         logger.info(record)
         message_body = json.loads(record['body'])
         event_id = message_body['eventId']
-        certificate_usecase.generate_certficates(event_id=event_id)
+        registration_id = message_body['registrationId']
+        certificate_usecase.generate_certficates(event_id=event_id, registration_id=registration_id)
         SQS.delete_message(QueueUrl=CERTIFICATE_QUEUE, ReceiptHandle=record['receiptHandle'])
