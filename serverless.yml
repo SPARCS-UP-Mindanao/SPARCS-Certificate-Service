@@ -1,0 +1,59 @@
+service: sparcs-certificate-service
+
+custom:
+  projectName: sparcs-events
+  serviceName: certificate-generator
+  stage: ${opt:stage, self:provider.stage}
+  entities: ${self:custom.stage}-${self:custom.projectName}-entities
+  bucket: ${self:custom.stage}-${self:custom.projectName}-file-bucket
+  registrations: ${self:custom.stage}-${self:custom.projectName}-registrations
+  certificateQueue: ${self:custom.stage}-${self:custom.projectName}-certificate-queue.fifo
+  events: ${self:custom.stage}-${self:custom.projectName}
+  pythonRequirements:
+    dockerizePip: non-linux
+    noDeploy:
+      - requests
+      - boto3
+      - botocore
+    layer:
+      name: sparcs-events-${self:custom.stage}-python-requirements
+      compatibleRuntimes:
+        - python3.8
+    slim: true
+  logRetentionInDays: 30
+
+provider:
+  name: aws
+  runtime: python3.8
+  stage: dev
+  region: ap-southeast-1
+  memorySize: 3008
+  versionFunctions: false
+  environment:
+    REGION: ${self:provider.region}
+    STAGE: ${self:custom.stage}
+    CERTIFICATE_QUEUE: ${self:custom.certificateQueue}
+    REGISTRATIONS_TABLE: ${self:custom.registrations}
+    ENTITIES_TABLE: ${self:custom.entities}
+    EVENTS_TABLE: ${self:custom.events}
+    S3_BUCKET: ${self:custom.bucket}
+
+package: ${file(resources/package.yml)}
+
+resources:
+  - ${file(resources/sqs.yml)}
+
+functions:
+  - ${file(resources/generate_certificate.yml)}
+
+plugins:
+  - serverless-python-requirements
+  - serverless-iam-roles-per-function
+  - serverless-plugin-log-retention
+
+layers:
+  weazyprint:
+    name: ${self:custom.projectName}-${self:custom.stage}-weazyprint
+    description: weazyprint Linux Package Layer
+    package:
+      artifact: layers/weasyprint-layer-python3.8.zip
