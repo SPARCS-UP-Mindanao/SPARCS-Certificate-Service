@@ -1,4 +1,4 @@
-name: Deploy SPARCS Certificate Service
+name: Deploy DURIANPY Certificate Service
 on:
     push:
       branches:

@@ -1,7 +1,7 @@
-service: sparcs-certificate-service
+service: durianpy-certificate-service
 
 custom:
-  projectName: sparcs-events
+  projectName: durianpy-events
   serviceName: certificate-generator
   stage: ${opt:stage, self:provider.stage}
   entities: ${self:custom.stage}-${self:custom.projectName}-entities
@@ -16,7 +16,7 @@ custom:
       - boto3
       - botocore
     layer:
-      name: sparcs-events-${self:custom.stage}-python-requirements
+      name: durianpy-events-${self:custom.stage}-python-requirements
       compatibleRuntimes:
         - python3.8
     slim: true
@@ -47,6 +47,7 @@ functions:
   - ${file(resources/generate_certificate.yml)}
 
 plugins:
+  - serverless-better-credentials
   - serverless-python-requirements
   - serverless-iam-roles-per-function
   - serverless-plugin-log-retention
