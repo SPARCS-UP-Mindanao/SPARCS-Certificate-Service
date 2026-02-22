@@ -1,6 +1,6 @@
-# DURIANPY Email Service
+# SPARCS Certificate Service
 
-A serverless Email Service with SQS and Twillio SendGrid
+A serverless Certificate Service with SQS and Twillio SendGrid
 
 ## Setup Local Environment
 

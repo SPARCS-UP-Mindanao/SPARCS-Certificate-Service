@@ -2,7 +2,7 @@ import logging
 import os
 from sys import stdout
 
-logger = logging.getLogger('durianpy-certificate-service')
+logger = logging.getLogger('sparcs-certificate-service')
 handler = logging.StreamHandler(stdout)
 if os.getenv('AWS_EXECUTION_ENV'):  # pragma: no cover
     logger.propagate = False

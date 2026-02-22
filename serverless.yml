@@ -1,7 +1,7 @@
-service: durianpy-certificate-service
+service: sparcs-certificate-service
 
 custom:
-  projectName: durianpy-events
+  projectName: sparcs-events
   serviceName: certificate-generator
   stage: ${opt:stage, self:provider.stage}
   entities: ${self:custom.stage}-${self:custom.projectName}-entities
@@ -16,7 +16,7 @@ custom:
       - boto3
       - botocore
     layer:
-      name: durianpy-events-${self:custom.stage}-python-requirements
+      name: ${self:custom.projectName}-${self:custom.stage}-python-requirements
       compatibleRuntimes:
         - python3.8
     slim: true
