@@ -8,6 +8,13 @@ Resources:
       VisibilityTimeout: 900
       ReceiveMessageWaitTimeSeconds: 20
 
+  CertificateQueueSSMParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /sparcs-events-certificate-queue-url-${self:custom.stage}
+      Type: String
+      Value: !Ref CertificateQueue
+
 Outputs:
   CertificateQueueUrl:
     Value: !Ref CertificateQueue
