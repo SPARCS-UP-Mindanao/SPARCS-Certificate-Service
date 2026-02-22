@@ -1,4 +1,4 @@
-name: Deploy SPARCS Auth Service
+name: Deploy SPARCS Certificate Service
 on:
   push:
     branches:
