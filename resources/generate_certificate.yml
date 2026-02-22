@@ -7,13 +7,13 @@ certMaker:
   events:
     - sqs:
         arn:
-          "Fn::GetAtt": [ CertificateQueue, Arn ]
+          "Fn::GetAtt": [CertificateQueue, Arn]
   iamRoleStatements:
     - Effect: Allow
       Action:
         - "sqs:*"
       Resource:
-        - "Fn::GetAtt": [ CertificateQueue, Arn ]
+        - "Fn::GetAtt": [CertificateQueue, Arn]
     - Effect: Allow
       Action:
         - s3:PutObject
