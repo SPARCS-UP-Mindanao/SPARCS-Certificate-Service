@@ -49,92 +49,80 @@ It separates responsibilities into:
 
 └── CertEnvInit.py # Environment/bootstrap initialization
 
-## Setup Local Environment
+## Development Setup
 
-1. **Pre-requisites:**
-   - Ensure Python 3.8 is installed
+1. **Prerequisites:**
+   - Visual Studio Code
+   - VS Code Dev Containers extension
+   - Docker Desktop
+   - AWS CLI configured on host machine (`aws configure`)
 
-2. **Install pipenv:**
+2. **Clone and Open Project**
    ```shell
-   pip install pipenv==2023.4.29 --user
+   git clone https://github.com/SPARCS-UP-Mindanao/SPARCS-Certificate-Service.git 
+   cd SPARCS-Certificate-Service
    ```
+   
+   Open the folder in VS Code. VS Code will detect the dev container configuration and show a notification:
+   
+   **"Folder contains a Dev Container configuration file. Reopen folder to develop in a container"**
+   
+   Click **Reopen in Container** or manually open with `Ctrl` + `Shift` + `P` → `Dev Containers: Reopen in Container`
 
-3. **Install Python Dependencies:**
+   The dev container will automatically:
+   
+   - Build the container environment
+   - Install all dependencies
+   - Configure AWS CLI with your host credentials
+
+## Local Development
+
+1. **Install Python Dependencies:**
    ```shell
    pipenv install
    ```
 
-4. **Activate Virtual Environment:**
+2. **Activate Virtual Environment:**
    ```shell
    pipenv shell
    ```
 
-5. **Add Environment Variables:**
-    -  Add the `.env` file provided to you in the `backend` directory
+## Setup AWS SSO
 
-## Run Locally
-
-1. **Activate Virtual Environment:**
-   ```shell
-   pipenv shell
-   ```
-
-2. **Start Local Server:**
-   ```shell
-   uvicorn main:app --reload --log-level debug --env-file .env
-   ```
-
-## Setup AWS CLI
-
-1. **Download and Install AWS CLI:**
-   - [AWS CLI Installation Guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
-
-2. **Verify Installation:**
-   ```shell
-   aws --version
-   ```
-   **Ensure the version is aws-cli/2.x.x.**
-
-3. **Configure AWS SSO Profile:**
+1. **Configure AWS SSO Profile:**
    ```shell
    aws configure sso
    ```
 
    **You will be prompted for:**
-   - **SSO Start URL (provided by your organization)**
-   - **SSO Region (`use ap-southeast-1`)**
-   - **AWS Account ID**
-   - **Role Name**
-   - **Profile Name → `sparcs`**
+   - **SSO Start URL** (provided by your organization)
+   - **SSO Region** → `ap-southeast-1`
+   - **CLI default client Region** → `ap-southeast-1`
+   - **CLI default output format** → `json`
+   - **CLI profile name** → `sparcs`
 
-4. **Login via SSO:**
+   After entering SSO details, authenticate in your browser and select your AWS account and role.
+
+2. **Login via SSO:**
    ```shell
    aws sso login --profile sparcs
    ```
 
-5. **Verify Identity (Optional):**
+3. **Verify Identity:**
    ```shell
    aws sts get-caller-identity --profile sparcs
    ```
 
-## Setup Serverless Framework
+## Deploy to AWS
 
-1. **Pre-requisites:**
-   - Ensure `Node 14` or later is installed
-
-2. **Install serverless framework:**
-   ```shell
-   npm install -g serverless
-   ```
-
-3. **Install serverless plugins:**
+1. **Install serverless plugins:**
    ```shell
    npm install
    ```
 
-## Deploy to AWS
+2. **Deploy:**
    ```shell
-   serverless deploy --stage 'dev' --aws-profile 'sparcs' --verbose
+   npx serverless deploy --stage dev --aws-profile sparcs --verbose
    ```
 
 ## Best Practices Followed
