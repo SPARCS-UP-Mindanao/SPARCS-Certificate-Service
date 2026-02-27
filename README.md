@@ -89,15 +89,33 @@ It separates responsibilities into:
 1. **Download and Install AWS CLI:**
    - [AWS CLI Installation Guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 
-2. **Create AWS Profile:**
+2. **Verify Installation:**
    ```shell
-   aws configure --profile sparcs
+   aws --version
+   ```
+   **Ensure the version is aws-cli/2.x.x.**
+
+3. **Configure AWS SSO Profile:**
+   ```shell
+   aws configure sso
    ```
 
-   - **Input your AWS Access Key ID and AWS Secret Access Key provided to you.**
-   - **Input `ap-southeast-1` for the default region name.**
-   - **Leave blank for the default output format.**
+   **You will be prompted for:**
+   - **SSO Start URL (provided by your organization)**
+   - **SSO Region (`use ap-southeast-1`)**
+   - **AWS Account ID**
+   - **Role Name**
+   - **Profile Name → `sparcs`**
 
+4. **Login via SSO:**
+   ```shell
+   aws sso login --profile sparcs
+   ```
+
+5. **Verify Identity (Optional):**
+   ```shell
+   aws sts get-caller-identity --profile sparcs
+   ```
 
 ## Setup Serverless Framework
 
