@@ -56,3 +56,8 @@ repos:
           # check out their meaning here
           # https://flake8.pycqa.org/en/latest/user/error-codes.html
           - "--ignore=E203,E266,E501,W503,F403,F401,E402,F841,C901,F722,F405,F811"
+  # commitizen
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.12.0
+    hooks:
+      - id: commitizen
