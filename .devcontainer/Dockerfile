@@ -36,8 +36,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certifi
 
 # Install Dependencies (Pre-build)
 WORKDIR /workspace
-COPY package*.json .
-COPY Pipfile* .
+COPY package*.json ./
+COPY Pipfile* ./
 
 RUN npm install
 RUN pipenv install --dev
